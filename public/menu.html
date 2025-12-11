@@ -1,119 +1,108 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Christmas Dinner Menu</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <div class="top-bar">
-    <div class="top-bar-left">
-      <h1>🎄 Christmas Dinner Menu</h1>
-    </div>
-    <div class="top-bar-right">
-      <span id="welcome"></span>
-      <a href="/logout" class="button small secondary">Log out</a>
-    </div>
-  </div>
+<script>
+  // Show current user
+  fetch("/me")
+    .then(res => res.json())
+    .then(data => {
+      window.isAdmin = data.is_admin;
 
-  <div class="container">
-    <section class="card">
-      <h2>Add a dish</h2>
-      <form action="/add-dish" method="POST" class="inline-form">
-        <input type="text" name="name" placeholder="e.g. Mashed potatoes" required>
-        <button type="submit" class="button">Add</button>
-      </form>
-      <p class="muted">Add anything: mains, sides, desserts, drinks.</p>
-    </section>
+      const welcome = document.getElementById("welcome");
+      if (data.loggedIn) {
+        welcome.textContent = "Logged in as " + data.username +
+          (data.is_admin ? " (admin)" : "");
+      }
 
-    <section class="card">
-      <h2>Menu & who’s bringing what</h2>
-      <ul id="dish-list" class="dish-list"></ul>
-    </section>
-  </div>
+      // ✅ Fix: pre-check attendance box
+      document.getElementById("attendingBox").checked = data.attending;
+    });
 
-  <script>
-    // Show current user
-    fetch("/me")
+  // Load dishes
+  function loadDishes() {
+    fetch("/dishes")
       .then(res => res.json())
-      .then(data => {
-        const welcome = document.getElementById("welcome");
-        if (data.loggedIn) {
-          welcome.textContent = "Logged in as " + data.username;
-        } else {
-          welcome.textContent = "";
-        }
-      });
+      .then(dishes => {
+        const list = document.getElementById("dish-list");
+        list.innerHTML = "";
 
-    // Load dishes
-    function loadDishes() {
-      fetch("/dishes")
-        .then(res => res.json())
-        .then(dishes => {
-          const list = document.getElementById("dish-list");
-          list.innerHTML = "";
+        dishes.forEach(dish => {
+          const li = document.createElement("li");
+          li.className = "dish-item";
 
-          dishes.forEach(dish => {
-            const li = document.createElement("li");
-            li.className = "dish-item";
+          const nameSpan = document.createElement("span");
+          nameSpan.textContent = dish.name;
 
-            const nameSpan = document.createElement("span");
-            nameSpan.textContent = dish.name;
+          const rightDiv = document.createElement("div");
+          rightDiv.className = "dish-actions";
 
-            const rightDiv = document.createElement("div");
-            rightDiv.className = "dish-actions";
+          if (dish.claimed_by) {
+            const claimedSpan = document.createElement("span");
+            claimedSpan.className = "tag claimed";
+            claimedSpan.textContent = "Brought by " + dish.claimed_by;
+            rightDiv.appendChild(claimedSpan);
 
-            if (dish.claimed_by) {
-              const claimedSpan = document.createElement("span");
-              claimedSpan.className = "tag claimed";
-              claimedSpan.textContent = "Brought by " + dish.claimed_by;
-              rightDiv.appendChild(claimedSpan);
+            const form = document.createElement("form");
+            form.method = "POST";
+            form.action = "/unclaim-dish";
 
-              const form = document.createElement("form");
-              form.method = "POST";
-              form.action = "/unclaim-dish";
+            const hidden = document.createElement("input");
+            hidden.type = "hidden";
+            hidden.name = "dishId";
+            hidden.value = dish.id;
+            form.appendChild(hidden);
 
-              const hidden = document.createElement("input");
-              hidden.type = "hidden";
-              hidden.name = "dishId";
-              hidden.value = dish.id;
-              form.appendChild(hidden);
+            const btn = document.createElement("button");
+            btn.type = "submit";
+            btn.className = "button small secondary";
+            btn.textContent = "I’m not bringing this";
+            form.appendChild(btn);
 
-              const btn = document.createElement("button");
-              btn.type = "submit";
-              btn.className = "button small secondary";
-              btn.textContent = "I’m not bringing this";
-              form.appendChild(btn);
+            rightDiv.appendChild(form);
+          } else {
+            const form = document.createElement("form");
+            form.method = "POST";
+            form.action = "/claim-dish";
 
-              rightDiv.appendChild(form);
-            } else {
-              const form = document.createElement("form");
-              form.method = "POST";
-              form.action = "/claim-dish";
+            const hidden = document.createElement("input");
+            hidden.type = "hidden";
+            hidden.name = "dishId";
+            hidden.value = dish.id;
+            form.appendChild(hidden);
 
-              const hidden = document.createElement("input");
-              hidden.type = "hidden";
-              hidden.name = "dishId";
-              hidden.value = dish.id;
-              form.appendChild(hidden);
+            const btn = document.createElement("button");
+            btn.type = "submit";
+            btn.className = "button small";
+            btn.textContent = "I’ll bring this";
+            form.appendChild(btn);
 
-              const btn = document.createElement("button");
-              btn.type = "submit";
-              btn.className = "button small";
-              btn.textContent = "I’ll bring this";
-              form.appendChild(btn);
+            rightDiv.appendChild(form);
+          }
 
-              rightDiv.appendChild(form);
-            }
+          // If admin, show delete button
+          if (window.isAdmin) {
+            const form = document.createElement("form");
+            form.method = "POST";
+            form.action = "/delete-dish";
 
-            li.appendChild(nameSpan);
-            li.appendChild(rightDiv);
-            list.appendChild(li);
-          });
+            const hidden = document.createElement("input");
+            hidden.type = "hidden";
+            hidden.name = "dishId";
+            hidden.value = dish.id;
+            form.appendChild(hidden);
+
+            const btn = document.createElement("button");
+            btn.type = "submit";
+            btn.className = "button small secondary";
+            btn.textContent = "Delete";
+            form.appendChild(btn);
+
+            rightDiv.appendChild(form);
+          }
+
+          li.appendChild(nameSpan);
+          li.appendChild(rightDiv);
+          list.appendChild(li);
         });
-    }
+      });
+  }
 
-    loadDishes();
-  </script>
-</body>
-</html>
+  loadDishes();
+</script>

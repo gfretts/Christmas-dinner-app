@@ -112,13 +112,12 @@ app.get("/me", (req, res) => {
   if (!req.session.userId) {
     return res.json({ loggedIn: false });
   }
-
   res.json({
     loggedIn: true,
     id: req.session.userId,
     username: req.session.username,
     attending: req.session.attending,
-    is_admin: req.session.is_admin
+    is_admin: req.session.is_admin === true || req.session.is_admin === 1
   });
 });
 

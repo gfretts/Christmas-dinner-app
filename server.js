@@ -19,9 +19,7 @@ app.use(
 );
 app.use(express.static(path.join(__dirname, "public")));
 
-// --------- Helpers / Middleware ---------
-
-// Require user to be logged in
+// Auth guard
 function requireLogin(req, res, next) {
   if (!req.session.userId) {
     return res.redirect("/login.html");
@@ -29,7 +27,7 @@ function requireLogin(req, res, next) {
   next();
 }
 
-// Require admin user
+// Admin guard
 function requireAdmin(req, res, next) {
   if (!req.session.is_admin) {
     return res.status(403).send("Admins only");
@@ -37,9 +35,7 @@ function requireAdmin(req, res, next) {
   next();
 }
 
-// --------- Routes ---------
-
-// Root -> redirect to menu if logged in, otherwise to landing page
+// Root route
 app.get("/", (req, res) => {
   if (req.session.userId) {
     return res.redirect("/menu.html");
@@ -52,21 +48,20 @@ app.post("/signup", async (req, res) => {
   const { username, password, attending } = req.body;
 
   if (!username || !password) {
-    return res.status(400).send("Username and password are required");
+    return res.status(400).send("Username and password required");
   }
-
-  const attendingValue = attending ? 1 : 0;
 
   try {
     const hash = await bcrypt.hash(password, 10);
+    const attendingValue = attending ? 1 : 0;
 
     db.run(
       "INSERT INTO users (username, password_hash, attending) VALUES (?, ?, ?)",
       [username, hash, attendingValue],
-      (err) => {
+      function (err) {
         if (err) {
           console.error(err);
-          return res.status(400).send("Username already exists");
+          return res.status(400).send("That username is taken.");
         }
         res.redirect("/login.html");
       }
@@ -95,7 +90,7 @@ app.post("/login", (req, res) => {
       return res.status(400).send("Invalid username or password");
     }
 
-    // Store session data
+    // Set session fields
     req.session.userId = user.id;
     req.session.username = user.username;
     req.session.attending = user.attending === 1;
@@ -112,21 +107,22 @@ app.get("/logout", (req, res) => {
   });
 });
 
-// Get current user info (for frontend)
+// Current user info
 app.get("/me", (req, res) => {
   if (!req.session.userId) {
     return res.json({ loggedIn: false });
   }
+
   res.json({
     loggedIn: true,
     id: req.session.userId,
     username: req.session.username,
-    is_admin: req.session.is_admin,
     attending: req.session.attending,
+    is_admin: req.session.is_admin
   });
 });
 
-// Get all users (for attendance list)
+// Get all users (attendance list)
 app.get("/users", (req, res) => {
   db.all("SELECT username, attending FROM users ORDER BY username ASC", [], (err, rows) => {
     if (err) {
@@ -137,7 +133,7 @@ app.get("/users", (req, res) => {
   });
 });
 
-// Get all dishes
+// Get dishes
 app.get("/dishes", (req, res) => {
   const sql = `
     SELECT dishes.id, dishes.name, users.username AS claimed_by
@@ -145,7 +141,6 @@ app.get("/dishes", (req, res) => {
     LEFT JOIN users ON dishes.claimed_by = users.id
     ORDER BY dishes.id ASC
   `;
-
   db.all(sql, [], (err, rows) => {
     if (err) {
       console.error(err);
@@ -158,6 +153,7 @@ app.get("/dishes", (req, res) => {
 // Add dish
 app.post("/add-dish", requireLogin, (req, res) => {
   const { name } = req.body;
+
   if (!name || !name.trim()) {
     return res.status(400).send("Dish name is required");
   }
@@ -165,7 +161,7 @@ app.post("/add-dish", requireLogin, (req, res) => {
   db.run(
     "INSERT INTO dishes (name, claimed_by) VALUES (?, NULL)",
     [name.trim()],
-    (err) => {
+    function (err) {
       if (err) {
         console.error(err);
         return res.status(500).send("Server error");
@@ -183,7 +179,7 @@ app.post("/claim-dish", requireLogin, (req, res) => {
   db.run(
     "UPDATE dishes SET claimed_by = ? WHERE id = ?",
     [userId, dishId],
-    (err) => {
+    function (err) {
       if (err) {
         console.error(err);
         return res.status(500).send("Server error");
@@ -201,7 +197,7 @@ app.post("/unclaim-dish", requireLogin, (req, res) => {
   db.run(
     "UPDATE dishes SET claimed_by = NULL WHERE id = ? AND claimed_by = ?",
     [dishId, userId],
-    (err) => {
+    function (err) {
       if (err) {
         console.error(err);
         return res.status(500).send("Server error");
@@ -211,11 +207,11 @@ app.post("/unclaim-dish", requireLogin, (req, res) => {
   );
 });
 
-// Admin: delete dish
+// Delete dish (admin only)
 app.post("/delete-dish", requireAdmin, (req, res) => {
   const { dishId } = req.body;
 
-  db.run("DELETE FROM dishes WHERE id = ?", [dishId], (err) => {
+  db.run("DELETE FROM dishes WHERE id = ?", [dishId], function (err) {
     if (err) {
       console.error(err);
       return res.status(500).send("Server error");
@@ -224,20 +220,19 @@ app.post("/delete-dish", requireAdmin, (req, res) => {
   });
 });
 
-// Set attending (toggle from menu page)
-app.post("/set-attending", (req, res) => {
-  if (!req.session.userId) return res.status(403).send("Not logged in");
-
+// Set attending
+app.post("/set-attending", requireLogin, (req, res) => {
   const attending = req.body.attending === "1" ? 1 : 0;
 
   db.run(
     "UPDATE users SET attending = ? WHERE id = ?",
     [attending, req.session.userId],
-    (err) => {
+    function (err) {
       if (err) {
         console.error(err);
         return res.status(500).send("Server error");
       }
+
       req.session.attending = attending === 1;
       res.redirect("/menu.html");
     }

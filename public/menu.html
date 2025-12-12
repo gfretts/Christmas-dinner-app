@@ -69,6 +69,12 @@
           welcome.textContent = "Logged in as " + data.username +
             (data.is_admin ? " (admin)" : "");
         }
+	if (data.is_admin) {
+  	  const adminLink = document.createElement("a");
+  	  adminLink.href = "/admin.html";
+  	  adminLink.textContent = "Admin Panel";
+  	  document.body.appendChild(adminLink);
+	}
 
         // ✅ Pre-check attendance box
         document.getElementById("attendingBox").checked = data.attending;

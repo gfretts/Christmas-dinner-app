@@ -238,6 +238,63 @@ app.post("/set-attending", requireLogin, (req, res) => {
     }
   );
 });
+//adding 9:49
+app.get("/admin/users", requireAdmin, (req, res) => {
+  db.all(
+    "SELECT id, username, attending, is_admin FROM users ORDER BY username ASC",
+    [],
+    (err, rows) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("Server error");
+      }
+      res.json(rows);
+    }
+  );
+});
+app.post("/admin/toggle-attending", requireAdmin, (req, res) => {
+  const { userId } = req.body;
+
+  db.run(
+    "UPDATE users SET attending = NOT attending WHERE id = ?",
+    [userId],
+    function (err) {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("Server error");
+      }
+      res.redirect("/admin.html");
+    }
+  );
+});
+
+app.post("/admin/toggle-admin", requireAdmin, (req, res) => {
+  const { userId } = req.body;
+
+  db.run(
+    "UPDATE users SET is_admin = NOT is_admin WHERE id = ?",
+    [userId],
+    function (err) {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("Server error");
+      }
+      res.redirect("/admin.html");
+    }
+  );
+});
+app.post("/admin/delete-user", requireAdmin, (req, res) => {
+  const { userId } = req.body;
+
+  db.run("DELETE FROM users WHERE id = ?", [userId], function (err) {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Server error");
+    }
+    res.redirect("/admin.html");
+  });
+});
+
 
 // Start server
 const PORT = process.env.PORT || 3000;

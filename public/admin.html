@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>User Management</h1>
+  <p><a href="/menu.html">← Back to Menu</a></p>
+
+  <table id="usersTable" border="1" cellpadding="8">
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Attending</th>
+        <th>Admin</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    async function loadUsers() {
+      const res = await fetch("/admin/users");
+      const users = await res.json();
+
+      const tbody = document.querySelector("#usersTable tbody");
+      tbody.innerHTML = "";
+
+      users.forEach(user => {
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+          <td>${user.username}</td>
+          <td>${user.attending ? "✅" : "❌"}</td>
+          <td>${user.is_admin ? "✅" : "❌"}</td>
+          <td>
+            <form method="POST" action="/admin/toggle-attending" style="display:inline;">
+              <input type="hidden" name="userId" value="${user.id}">
+              <button type="submit">Toggle Attending</button>
+            </form>
+
+            <form method="POST" action="/admin/toggle-admin" style="display:inline;">
+              <input type="hidden" name="userId" value="${user.id}">
+              <button type="submit">Toggle Admin</button>
+            </form>
+
+            <form method="POST" action="/admin/delete-user" style="display:inline;">
+              <input type="hidden" name="userId" value="${user.id}">
+              <button type="submit" style="color:red;">Delete</button>
+            </form>
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    loadUsers();
+  </script>
+</body>
+</html>

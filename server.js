@@ -1,3 +1,5 @@
+
+
 const express = require("express");
 const bcrypt = require("bcrypt");
 const session = require("express-session");
@@ -85,6 +87,7 @@ app.post("/login", (req, res) => {
 
     req.session.userId = user.id;
     req.session.username = user.username;
+
     res.redirect("/menu.html");
   });
 });
@@ -104,9 +107,7 @@ app.get("/me", (req, res) => {
   res.json({
     loggedIn: true,
     id: req.session.userId,
-    username: req.session.username,req.session.userId = user.id;
-req.session.username = user.username;
-req.session.is_admin = user.is_admin === 1;
+    username: req.session.username
   });
 });
 
@@ -160,7 +161,7 @@ app.post("/claim-dish", requireLogin, (req, res) => {
   );
 });
 
-// Unclaim dish (if someone changes their mind)
+// Unclaim dish
 app.post("/unclaim-dish", requireLogin, (req, res) => {
   const { dishId } = req.body;
   const userId = req.session.userId;

@@ -7,8 +7,7 @@
 
       const welcome = document.getElementById("welcome");
       if (data.loggedIn) {
-        welcome.textContent = "Logged in as " + data.username +
-          (data.is_admin ? " (admin)" : "");
+        welcome.textContent = "Logged in as " + data.username + (data.is_admin ? " (admin)" : "");
       }
 
       // ✅ Fix: pre-check attendance box
@@ -106,3 +105,4 @@
 
   loadDishes();
 </script>
+

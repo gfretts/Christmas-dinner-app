@@ -1,5 +1,6 @@
 const sqlite3 = require("sqlite3").verbose();
-const db = new sqlite3.Database("database.sqlite");
+//const db = new sqlite3.Database("database.sqlite");
+const db = new sqlite3.Database("/opt/render/project/data/database.sqlite");
 
 db.serialize(() => {
   console.log("✅ Initializing database...");

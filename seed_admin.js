@@ -1,7 +1,8 @@
 const sqlite3 = require("sqlite3").verbose();
 const bcrypt = require("bcrypt");
 
-const db = new sqlite3.Database("database.sqlite");
+//const db = new sqlite3.Database("database.sqlite");
+const db = new sqlite3.Database("/opt/render/project/data/database.sqlite");
 
 async function seedAdmin() {
   console.log("🔍 Checking for existing admin user...");

@@ -6,7 +6,7 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="top-bar">
+  <div class="top-bar responsive">
     <div class="top-bar-left">
       <h1>🎄 Fretts Roberts(on) Christmas Dinner Menu</h1>
     </div>
@@ -16,7 +16,7 @@
     </div>
   </div>
 
-  <div class="container">
+  <div class="container responsive">
 
     <!-- Attendance Section -->
     <section class="card">
@@ -54,6 +54,11 @@
       <h3 style="margin-top:20px;">Not attending</h3>
       <ul id="not-attending-list" class="dish-list"></ul>
     </section>
+
+<section class="card">
+  <h2>Menu Summary</h2>
+  <ul id="summary-list" class="dish-list"></ul>
+</section>
 
   </div>
 
@@ -193,9 +198,38 @@
           });
         });
     }
+function loadSummary(dishes) {
+  const summaryList = document.getElementById("summary-list");
+  summaryList.innerHTML = "";
 
+  // Group dishes by who is bringing them
+  const grouped = {};
+
+  dishes.forEach(dish => {
+    const person = dish.claimed_by || "Unclaimed";
+    if (!grouped[person]) grouped[person] = [];
+    grouped[person].push(dish.name);
+  });
+
+  // Build summary list
+  Object.keys(grouped).forEach(person => {
+    const li = document.createElement("li");
+    li.className = "dish-item";
+
+    const name = document.createElement("strong");
+    name.textContent = person + ":";
+
+    const items = document.createElement("span");
+    items.textContent = " " + grouped[person].join(", ");
+
+    li.appendChild(name);
+    li.appendChild(items);
+    summaryList.appendChild(li);
+  });
+}
     loadDishes();
     loadAttendance();
+  loadSummary(dishes);
   </script>
 </body>
 </html>

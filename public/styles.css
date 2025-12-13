@@ -1,41 +1,164 @@
-/* Responsive Layout */
-@media screen and (max-width: 600px) {
+/* ------------------------------
+   GLOBAL RESET & BASE STYLES
+--------------------------------*/
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f7f7f7;
+  padding: 20px;
+  color: #333;
+  line-height: 1.5;
+}
+
+/* ------------------------------
+   TOP BAR
+--------------------------------*/
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.top-bar h1 {
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ------------------------------
+   CONTAINER & CARDS
+--------------------------------*/
+.container {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.card {
+  background: white;
+  padding: 18px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+}
+
+.card h2 {
+  margin-bottom: 12px;
+}
+
+/* ------------------------------
+   BUTTONS & FORMS
+--------------------------------*/
+button,
+.button {
+  background: #0077cc;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.button.secondary {
+  background: #888;
+}
+
+button.small,
+.button.small {
+  padding: 6px 10px;
+  font-size: 0.9rem;
+}
+
+button:hover,
+.button:hover {
+  background: #005fa3;
+}
+
+.inline-form {
+  display: flex;
+  gap: 10px;
+}
+
+.inline-form input {
+  flex: 1;
+}
+
+/* ------------------------------
+   DISH LISTS
+--------------------------------*/
+.dish-list {
+  list-style: none;
+  padding: 0;
+}
+
+.dish-item {
+  background: #fafafa;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dish-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.tag.claimed {
+  background: #d1ffd1;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+/* ------------------------------
+   RESPONSIVE (MOBILE)
+--------------------------------*/
+@media (max-width: 600px) {
   body {
     padding: 10px;
   }
 
-  /* Only collapse tables on true small screens */
-  table.responsive {
-    border: 0;
+  .top-bar {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
   }
 
-  table.responsive thead {
-    display: none;
+  .inline-form {
+    flex-direction: column;
   }
 
-  table.responsive tr {
-    display: block;
-    margin-bottom: 15px;
-    background: white;
-    padding: 10px;
-    border-radius: 8px;
+  .dish-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
   }
 
-  table.responsive td {
-    display: block;
-    border: none;
-    padding: 8px 0;
+  .dish-actions {
+    width: 100%;
+    flex-direction: column;
   }
 
-  table.responsive td::before {
-    content: attr(data-label);
-    font-weight: bold;
-    display: block;
-    margin-bottom: 4px;
-    color: #555;
-  }
-
-  button {
+  button,
+  .button {
     width: 100%;
   }
 }

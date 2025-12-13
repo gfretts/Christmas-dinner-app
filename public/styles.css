@@ -1,132 +1,33 @@
-/* Global Reset */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-/* Body */
-body {
-  font-family: Arial, sans-serif;
-  background: #fafafa;
-  padding: 20px;
-  color: #333;
-  line-height: 1.5;
-}
-
-/* Headings */
-h1, h2, h3 {
-  margin-bottom: 15px;
-  text-align: center;
-}
-
-/* Links */
-a {
-  color: #0077cc;
-  text-decoration: none;
-  font-weight: bold;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-/* Forms */
-form {
-  margin: 15px 0;
-}
-
-input, button, select {
-  padding: 12px;
-  font-size: 1rem;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  width: 100%;
-  margin-bottom: 12px;
-}
-
-button {
-  background: #0077cc;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #005fa3;
-}
-
-/* Tables */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
-
-th, td {
-  padding: 12px;
-  border-bottom: 1px solid #ddd;
-  text-align: left;
-}
-
-th {
-  background: #f0f0f0;
-  font-weight: bold;
-}
-
-/* Make tables scrollable on mobile */
-.table-wrapper {
-  overflow-x: auto;
-}
-
-/* Cards (optional for menu items or sections) */
-.card {
-  background: white;
-  padding: 15px;
-  border-radius: 8px;
-  margin-bottom: 15px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-/* Navigation buttons */
-.nav-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin: 20px 0;
-}
-
-.nav-buttons a, .nav-buttons button {
-  flex: 1;
-}
-
 /* Responsive Layout */
-@media (max-width: 600px) {
+@media screen and (max-width: 600px) {
   body {
     padding: 10px;
   }
 
-  table, thead, tbody, th, td, tr {
-    display: block;
+  /* Only collapse tables on true small screens */
+  table.responsive {
+    border: 0;
   }
 
-  tr {
+  table.responsive thead {
+    display: none;
+  }
+
+  table.responsive tr {
+    display: block;
     margin-bottom: 15px;
     background: white;
     padding: 10px;
     border-radius: 8px;
   }
 
-  td {
+  table.responsive td {
+    display: block;
     border: none;
     padding: 8px 0;
   }
 
-  th {
-    display: none;
-  }
-
-  td::before {
+  table.responsive td::before {
     content: attr(data-label);
     font-weight: bold;
     display: block;

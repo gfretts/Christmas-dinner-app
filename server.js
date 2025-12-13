@@ -4,7 +4,17 @@ const session = require("express-session");
 const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
 
+// Load DB init + seed functions
+const initDB = require("./init_db.js");
+const seedAdmin = require("./seed_admin.js");
+
+// Run DB initialization at server startup (NOT during build)
+initDB();
+seedAdmin();
+
 const app = express();
+
+// Connect to persistent Render disk
 const db = new sqlite3.Database("/opt/render/project/data/database.sqlite");
 
 // Middleware
@@ -112,12 +122,13 @@ app.get("/me", (req, res) => {
   if (!req.session.userId) {
     return res.json({ loggedIn: false });
   }
+
   res.json({
     loggedIn: true,
     id: req.session.userId,
     username: req.session.username,
     attending: req.session.attending,
-    is_admin: req.session.is_admin === true || req.session.is_admin === 1
+    is_admin: req.session.is_admin
   });
 });
 
@@ -237,7 +248,8 @@ app.post("/set-attending", requireLogin, (req, res) => {
     }
   );
 });
-//adding 9:49
+
+// Admin: get all users
 app.get("/admin/users", requireAdmin, (req, res) => {
   db.all(
     "SELECT id, username, attending, is_admin FROM users ORDER BY username ASC",
@@ -251,6 +263,8 @@ app.get("/admin/users", requireAdmin, (req, res) => {
     }
   );
 });
+
+// Admin: toggle attending
 app.post("/admin/toggle-attending", requireAdmin, (req, res) => {
   const { userId } = req.body;
 
@@ -267,6 +281,7 @@ app.post("/admin/toggle-attending", requireAdmin, (req, res) => {
   );
 });
 
+// Admin: toggle admin
 app.post("/admin/toggle-admin", requireAdmin, (req, res) => {
   const { userId } = req.body;
 
@@ -282,6 +297,8 @@ app.post("/admin/toggle-admin", requireAdmin, (req, res) => {
     }
   );
 });
+
+// Admin: delete user
 app.post("/admin/delete-user", requireAdmin, (req, res) => {
   const { userId } = req.body;
 
@@ -293,7 +310,6 @@ app.post("/admin/delete-user", requireAdmin, (req, res) => {
     res.redirect("/admin.html");
   });
 });
-
 
 // Start server
 const PORT = process.env.PORT || 3000;

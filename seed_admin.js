@@ -1,11 +1,10 @@
 const sqlite3 = require("sqlite3").verbose();
 const bcrypt = require("bcrypt");
 
-//const db = new sqlite3.Database("database.sqlite");
-const db = new sqlite3.Database("/opt/render/project/data/database.sqlite");
+module.exports = async function seedAdmin() {
+  const db = new sqlite3.Database("/opt/render/project/data/database.sqlite");
 
-async function seedAdmin() {
-  console.log("🔍 Checking for existing admin user...");
+  console.log("Checking for existing admin user...");
 
   db.get("SELECT * FROM users WHERE is_admin = 1", async (err, row) => {
     if (err) {
@@ -14,14 +13,14 @@ async function seedAdmin() {
     }
 
     if (row) {
-      console.log("✅ Admin user already exists:", row.username);
+      console.log("Admin user already exists:", row.username);
       return db.close();
     }
 
-    console.log("⚠️ No admin found — creating default admin user...");
+    console.log("No admin found — creating default admin user...");
 
     const username = "admin";
-    const password = "admin123"; // You can change this before running
+    const password = "admin123";
     const hash = await bcrypt.hash(password, 10);
 
     db.run(
@@ -29,9 +28,9 @@ async function seedAdmin() {
       [username, hash, 1, 1],
       (err) => {
         if (err) {
-          console.error("❌ Failed to create admin:", err);
+          console.error("Failed to create admin:", err);
         } else {
-          console.log("✅ Admin user created successfully!");
+          console.log("Admin user created successfully!");
           console.log("   Username:", username);
           console.log("   Password:", password);
         }
@@ -39,6 +38,4 @@ async function seedAdmin() {
       }
     );
   });
-}
-
-seedAdmin();
+};

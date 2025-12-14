@@ -171,6 +171,10 @@
             li.appendChild(rightDiv);
             list.appendChild(li);
           });
+
+ // 🔥 THIS MUST BE HERE
+      loadSummary(dishes);
+
         });
     }
 
@@ -198,20 +202,25 @@
           });
         });
     }
+///////
+
 function loadSummary(dishes) {
   const summaryList = document.getElementById("summary-list");
   summaryList.innerHTML = "";
 
-  // Group dishes by who is bringing them
+  if (!dishes || dishes.length === 0) {
+    summaryList.innerHTML = "<li class='dish-item'>No dishes yet.</li>";
+    return;
+  }
+
   const grouped = {};
 
   dishes.forEach(dish => {
-    const person = dish.claimed_by || "Unclaimed";
+   const person = dish.claimed_by ? dish.claimed_by : "Unclaimed";
     if (!grouped[person]) grouped[person] = [];
     grouped[person].push(dish.name);
   });
 
-  // Build summary list
   Object.keys(grouped).forEach(person => {
     const li = document.createElement("li");
     li.className = "dish-item";
@@ -227,9 +236,10 @@ function loadSummary(dishes) {
     summaryList.appendChild(li);
   });
 }
+/////
     loadDishes();
     loadAttendance();
-  loadSummary(dishes);
+  
   </script>
 </body>
 </html>
